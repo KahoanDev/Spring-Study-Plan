@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: arquiteturaspring
+  jpa:
+    show_sql: true
+
+app:
+  config:
+    variavel: X
+    valor1: 500
