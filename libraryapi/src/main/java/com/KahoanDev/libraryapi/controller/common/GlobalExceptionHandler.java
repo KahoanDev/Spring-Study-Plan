@@ -2,6 +2,7 @@ package com.KahoanDev.libraryapi.controller.common;
 
 import com.KahoanDev.libraryapi.controller.dto.ErrorCampo;
 import com.KahoanDev.libraryapi.controller.dto.ErrorResposta;
+import com.KahoanDev.libraryapi.exceptions.CampoInvalidoException;
 import com.KahoanDev.libraryapi.exceptions.OperacaoNaoPermitidaException;
 import com.KahoanDev.libraryapi.exceptions.RegistroDuplicadoException;
 import org.springframework.http.HttpStatus;
@@ -37,12 +38,19 @@ public class GlobalExceptionHandler {
         return ErrorResposta.conflito(e.getMessage());
     }
 
-
-
     @ExceptionHandler(OperacaoNaoPermitidaException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResposta handleOperacaoNaoPermitidaException(OperacaoNaoPermitidaException e){
         return ErrorResposta.respostaPadrao(e.getMessage());
+    }
+
+    @ExceptionHandler(CampoInvalidoException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ErrorResposta handleCampoInvalidoException(CampoInvalidoException e){
+        return new ErrorResposta(
+                HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                "Erro de validação",
+                List.of(new ErrorCampo(e.getCampo(), e.getMessage())));
     }
 
     @ExceptionHandler(RuntimeException.class)

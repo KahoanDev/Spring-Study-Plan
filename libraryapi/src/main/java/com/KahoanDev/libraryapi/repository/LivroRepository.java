@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface LivroRepository extends JpaRepository<Livro, UUID>, JpaSpecificationExecutor<Livro> {
@@ -19,7 +20,7 @@ public interface LivroRepository extends JpaRepository<Livro, UUID>, JpaSpecific
     boolean existsByAutor(Autor autor);
     List<Livro> findByAutor(Autor autor);
     List<Livro> findByTitulo(String titulo);
-    List<Livro> findByIsbn(String isbn);
+    Optional<Livro> findByIsbn(String isbn);
 
     // JPQL -> Referencia as entidades e as propriedades
     @Query("SELECT l FROM Livro as l ORDER BY l.titulo")
