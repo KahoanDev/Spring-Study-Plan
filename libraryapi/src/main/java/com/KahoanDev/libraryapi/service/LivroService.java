@@ -1,8 +1,10 @@
 package com.KahoanDev.libraryapi.service;
 
 import com.KahoanDev.libraryapi.model.Livro;
+import com.KahoanDev.libraryapi.model.Usuario;
 import com.KahoanDev.libraryapi.model.enums.GeneroLivro;
 import com.KahoanDev.libraryapi.repository.LivroRepository;
+import com.KahoanDev.libraryapi.security.SecurityService;
 import com.KahoanDev.libraryapi.validator.LivroValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,9 +24,12 @@ public class LivroService {
 
     private final LivroRepository repository;
     private final LivroValidator validator;
+    private final SecurityService securityService;
 
     public Livro salvar(Livro livro) {
         validator.validar(livro);
+        Usuario usuario = securityService.obterUsuarioLogado();
+        livro.setUsuario(usuario);
         return repository.save(livro);
     }
 

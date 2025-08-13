@@ -6,6 +6,7 @@ import com.KahoanDev.libraryapi.exceptions.CampoInvalidoException;
 import com.KahoanDev.libraryapi.exceptions.OperacaoNaoPermitidaException;
 import com.KahoanDev.libraryapi.exceptions.RegistroDuplicadoException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -51,6 +52,12 @@ public class GlobalExceptionHandler {
                 HttpStatus.UNPROCESSABLE_ENTITY.value(),
                 "Erro de validação",
                 List.of(new ErrorCampo(e.getCampo(), e.getMessage())));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResposta handleAccessDeniedException(AccessDeniedException e){
+        return new ErrorResposta(HttpStatus.FORBIDDEN.value(), "Acesso Negado!", List.of());
     }
 
     @ExceptionHandler(RuntimeException.class)
