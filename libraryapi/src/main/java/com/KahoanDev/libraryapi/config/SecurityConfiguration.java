@@ -1,8 +1,7 @@
 package com.KahoanDev.libraryapi.config;
 
-import com.KahoanDev.libraryapi.security.CustomUserDetailsService;
+import com.KahoanDev.libraryapi.security.JwtCustomAuthenticationFilter;
 import com.KahoanDev.libraryapi.security.LoginSocialSuccessHandler;
-import com.KahoanDev.libraryapi.service.UsuarioService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -12,9 +11,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -23,7 +22,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfiguration {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, LoginSocialSuccessHandler successHandler) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, LoginSocialSuccessHandler successHandler, JwtCustomAuthenticationFilter jwtCustomAuthenticationFilter) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(configurer -> {
@@ -41,21 +40,26 @@ public class SecurityConfiguration {
                             .loginPage("/login")
                             .successHandler(successHandler);
                 })
+                .oauth2ResourceServer(oauth2Rs -> oauth2Rs.jwt(Customizer.withDefaults()))
+                .addFilterAfter(jwtCustomAuthenticationFilter, BearerTokenAuthenticationFilter.class)
                 .build();
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
-
-    // @Bean
-    public UserDetailsService userDetailsService(UsuarioService usuarioService){
-        return new CustomUserDetailsService(usuarioService);
-    }
-
+    // Configura o prefixo Role
     @Bean
     public GrantedAuthorityDefaults grantedAuthorityDefaults(){
         return new GrantedAuthorityDefaults("");
+    }
+
+    // Configura no Token JWT o prefixo Scope
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter(){
+        var authoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        authoritiesConverter.setAuthorityPrefix("");
+
+        var converter = new JwtAuthenticationConverter();
+        converter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
+
+        return converter;
     }
 }
