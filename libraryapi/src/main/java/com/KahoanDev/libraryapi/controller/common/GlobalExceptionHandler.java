@@ -5,6 +5,7 @@ import com.KahoanDev.libraryapi.controller.dto.ErrorResposta;
 import com.KahoanDev.libraryapi.exceptions.CampoInvalidoException;
 import com.KahoanDev.libraryapi.exceptions.OperacaoNaoPermitidaException;
 import com.KahoanDev.libraryapi.exceptions.RegistroDuplicadoException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
@@ -17,11 +18,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     public ErrorResposta handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
+        log.error("Erro de validação: {}", e.getMessage());
+
         List<FieldError> errors = e.getFieldErrors();
         List<ErrorCampo> lista = errors
                 .stream()
@@ -63,6 +67,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResposta handleErrosNaoTratados(RuntimeException e){
+        log.error("Erro inesperado", e);
         return new ErrorResposta(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Ocorreu um erro inesperado! Tente novamente mais tarde.",
